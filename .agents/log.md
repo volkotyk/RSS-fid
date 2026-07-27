@@ -38,3 +38,9 @@
 - Documented Spotify for Creators ownership verification, catalog listening,
   feed updates, troubleshooting, and the public-distribution implications of
   using Spotify instead of a personal RSS subscription.
+
+## [2026-07-27] Project rename to RSS-feed
+
+- Standardized the human-facing project brand as `RSS-feed`.
+- Changed the default Terraform and GitHub Actions resource prefix to the
+  S3-compatible lowercase slug `rss-feed`.

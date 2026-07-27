@@ -1,6 +1,6 @@
-# AGENTS.md — rssfid
+# AGENTS.md — RSS-feed
 
-> **rssfid**: Serverless private-podcast RSS feed generator — Lambda reads an S3 bucket and returns a valid RSS 2.0 XML feed via API Gateway HTTP API.
+> **RSS-feed**: Serverless private-podcast RSS feed generator — Lambda reads an S3 bucket and returns a valid RSS 2.0 XML feed via API Gateway HTTP API.
 > Stack: Python 3.12 (Lambda), Terraform ≥ 1.5, AWS (S3 · Lambda · API Gateway HTTP API · CloudWatch), GitHub Actions.
 
 > [!IMPORTANT]
@@ -145,7 +145,7 @@ In addition to the standard rules in `.agents/rules/`:
 
 ## Project-Specific Notes
 
-* The S3 bucket name is computed from the account ID to guarantee global uniqueness: `rssfid-audio-<account_id>`.
+* The S3 bucket name is computed from the account ID to guarantee global uniqueness: `rss-feed-audio-<account_id>`.
 * boto3 is provided by the Lambda runtime — do **not** bundle it in the deployment zip.
 * Terraform state is local by default. For team use, add an S3 + DynamoDB backend block in `infra/main.tf`.
 * Required Terraform variables: `podcast_title`, `podcast_description`, `podcast_author`, `podcast_owner_name`, and `podcast_owner_email`. Prefer the corresponding `TF_VAR_*` environment variables; see `infra/terraform.tfvars.example` for a local-file alternative.

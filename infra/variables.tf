@@ -7,7 +7,7 @@ variable "aws_region" {
 variable "project_name" {
   description = "Short prefix applied to every resource name and tag"
   type        = string
-  default     = "rssfid"
+  default     = "rss-feed"
 }
 
 variable "environment" {

@@ -3,7 +3,7 @@
 # terraform.tfvars is ignored by Git; never commit real deployment values.
 
 aws_region   = "us-east-1"
-project_name = "rssfid"
+project_name = "rss-feed"
 environment  = "prod"
 
 # Destructive: leave false for normal deployments. Set true only in a reviewed

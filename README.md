@@ -1,6 +1,6 @@
-# rssfid
+# RSS-feed
 
-`rssfid` is a serverless RSS 2.0 feed generator for an S3-backed podcast. An
+`RSS-feed` is a serverless RSS 2.0 feed generator for an S3-backed podcast. An
 AWS Lambda function lists audio objects in a private S3 bucket, renders an RSS
 feed with Apple Podcasts metadata, and serves it through an API Gateway HTTP
 API. Audio and artwork stay private in S3 and are delivered through short-lived
@@ -125,7 +125,7 @@ $env:TF_VAR_podcast_owner_email = "owner@example.com"
 
 # Optional overrides
 $env:TF_VAR_aws_region = "us-east-1"
-$env:TF_VAR_project_name = "rssfid"
+$env:TF_VAR_project_name = "rss-feed"
 $env:TF_VAR_environment = "prod"
 $env:TF_VAR_podcast_language = "en"
 $env:TF_VAR_podcast_category = "Education"
@@ -139,7 +139,7 @@ $env:TF_VAR_podcast_category = "Education"
 | `podcast_owner_name` | `TF_VAR_podcast_owner_name` | Yes | — | Owner display name. |
 | `podcast_owner_email` | `TF_VAR_podcast_owner_email` | Yes | — | Owner email published inside the RSS feed. |
 | `aws_region` | `TF_VAR_aws_region` | No | `us-east-1` | AWS deployment region. |
-| `project_name` | `TF_VAR_project_name` | No | `rssfid` | Resource-name and tag prefix. |
+| `project_name` | `TF_VAR_project_name` | No | `rss-feed` | Resource-name and tag prefix. |
 | `environment` | `TF_VAR_environment` | No | `prod` | Environment tag. |
 | `allow_destroy_media_deletion` | `TF_VAR_allow_destroy_media_deletion` | No | `false` | Allows a reviewed destroy operation to empty and delete the podcast bucket. |
 | `podcast_language` | `TF_VAR_podcast_language` | No | `en` | BCP 47 feed language. |
@@ -268,7 +268,7 @@ audio-only download. See the official
 Most podcasts can also continue playing in the background without Premium.
 
 You do not need to re-add the URL after uploading another episode. YouTube Music
-periodically refreshes the same feed. `rssfid` asks clients to cache the RSS XML
+periodically refreshes the same feed. `RSS-feed` asks clients to cache the RSS XML
 for five minutes, and YouTube Music may take additional time to fetch an update.
 
 ### Troubleshooting YouTube Music
@@ -291,7 +291,7 @@ public, so do not treat possession of the URL as strong access control.
 ## Listen in Apple Podcasts
 
 Podcast RSS feeds are handled by the **Apple Podcasts** app, not Apple Music.
-Apple Podcasts can follow the `rssfid` URL directly for personal listening; the
+Apple Podcasts can follow the `RSS-feed` URL directly for personal listening; the
 show does not need to be submitted to Apple's public catalog first. See Apple's
 official guide for
 [adding a show by URL on iPhone](https://support.apple.com/en-gb/guide/iphone/iph19bb8e705/ios).
@@ -338,7 +338,7 @@ in Apple's official
 
 Spotify's normal listener app does not provide a general-purpose **Add podcast
 by RSS URL** flow like YouTube Music or Apple Podcasts. To listen to a
-self-hosted `rssfid` show in Spotify, add or claim the externally hosted show
+self-hosted `RSS-feed` show in Spotify, add or claim the externally hosted show
 through Spotify for Creators. This creates a Spotify catalog listing; use Apple
 Podcasts or YouTube Music instead if the feed should remain only a personal
 library entry.
@@ -348,7 +348,7 @@ library entry.
 1. Deploy the feed and upload at least one episode and the cover artwork.
 2. Verify that `$feedUrl` returns status `200` and valid RSS XML.
 3. Confirm that `TF_VAR_podcast_owner_email` is an address you can access.
-   `rssfid` publishes this value in `<itunes:email>`, and Spotify sends its
+   `RSS-feed` publishes this value in `<itunes:email>`, and Spotify sends its
    ownership code to the email address found in the RSS feed.
 4. Confirm that you own or have permission to distribute all included content.
 
@@ -413,7 +413,7 @@ environment values:
 | GitHub Variables | Required | Maps to |
 | --- | :---: | --- |
 | `AWS_REGION` | No | AWS region; falls back to `us-east-1`. |
-| `PROJECT_NAME` | No | `TF_VAR_project_name`; falls back to `rssfid`. |
+| `PROJECT_NAME` | No | `TF_VAR_project_name`; falls back to `rss-feed`. |
 | `DEPLOYMENT_ENVIRONMENT` | No | `TF_VAR_environment`; falls back to `prod`. |
 | `PODCAST_TITLE` | Yes | `TF_VAR_podcast_title`. |
 | `PODCAST_DESCRIPTION` | Yes | `TF_VAR_podcast_description`. |

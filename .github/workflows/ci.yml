@@ -90,7 +90,7 @@ jobs:
     env:
       AWS_REGION: ${{ vars.AWS_REGION || 'us-east-1' }}
       TF_VAR_aws_region: ${{ vars.AWS_REGION || 'us-east-1' }}
-      TF_VAR_project_name: ${{ vars.PROJECT_NAME || 'rssfid' }}
+      TF_VAR_project_name: ${{ vars.PROJECT_NAME || 'rss-feed' }}
       TF_VAR_environment: ${{ vars.DEPLOYMENT_ENVIRONMENT || 'prod' }}
       TF_VAR_podcast_title: ${{ vars.PODCAST_TITLE }}
       TF_VAR_podcast_description: ${{ vars.PODCAST_DESCRIPTION }}
