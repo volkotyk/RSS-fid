@@ -16,6 +16,13 @@
 - Corrected stale agent guidance that claimed an unimplemented ACM/Route53
   custom-domain layer and documented the actual required Terraform inputs.
 
+## [2026-07-27] Safe full-stack Terraform destroy
+
+- Added a default-off Terraform option that lets a reviewed destroy operation
+  empty and delete the managed podcast S3 bucket.
+- Documented a saved-plan workflow for reviewing and applying deletion of all
+  project resources tracked in the active Terraform state.
+
 ## [2026-07-27] YouTube Music RSS listening guide
 
 - Added an end-to-end README walkthrough for obtaining and validating the

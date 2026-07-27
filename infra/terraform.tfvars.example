@@ -6,6 +6,10 @@ aws_region   = "us-east-1"
 project_name = "rssfid"
 environment  = "prod"
 
+# Destructive: leave false for normal deployments. Set true only in a reviewed
+# destroy plan when every object in the podcast bucket may be deleted.
+allow_destroy_media_deletion = false
+
 podcast_title       = "Example Podcast"
 podcast_description = "A short description of the podcast."
 podcast_author      = "Publisher Name"

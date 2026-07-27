@@ -141,6 +141,7 @@ $env:TF_VAR_podcast_category = "Education"
 | `aws_region` | `TF_VAR_aws_region` | No | `us-east-1` | AWS deployment region. |
 | `project_name` | `TF_VAR_project_name` | No | `rssfid` | Resource-name and tag prefix. |
 | `environment` | `TF_VAR_environment` | No | `prod` | Environment tag. |
+| `allow_destroy_media_deletion` | `TF_VAR_allow_destroy_media_deletion` | No | `false` | Allows a reviewed destroy operation to empty and delete the podcast bucket. |
 | `podcast_language` | `TF_VAR_podcast_language` | No | `en` | BCP 47 feed language. |
 | `podcast_category` | `TF_VAR_podcast_category` | No | `Education` | Apple Podcasts top-level category. |
 
@@ -445,15 +446,33 @@ needed by this Terraform configuration. For stronger controls, protect the
 
 ## Remove deployed resources
 
-Review the destroy plan, then remove resources when they are no longer needed:
+Terraform destroys only resources recorded in the active Terraform state. Use
+the same state and AWS account/profile that created the deployment. Back up any
+podcast media that must be retained. First, create and inspect a saved plan that
+enables deletion of objects in the managed bucket, then apply that plan:
 
 ```powershell
-terraform -chdir=infra plan -destroy
-terraform -chdir=infra destroy
+terraform -chdir=infra plan -var='allow_destroy_media_deletion=true' -out=enable-destroy.tfplan
+terraform -chdir=infra show enable-destroy.tfplan
+terraform -chdir=infra apply enable-destroy.tfplan
 ```
 
-Terraform cannot delete a non-empty S3 bucket. Back up any media you need, then
-empty the exact generated bucket before running `destroy`.
+After that setting is recorded in Terraform state, create and inspect the full
+destroy plan before applying it:
+
+```powershell
+terraform -chdir=infra plan -destroy -var='allow_destroy_media_deletion=true' -out=destroy.tfplan
+terraform -chdir=infra show destroy.tfplan
+terraform -chdir=infra apply destroy.tfplan
+```
+
+Setting `allow_destroy_media_deletion=true` lets the AWS provider permanently
+remove every object in the managed S3 bucket so that the bucket can also be
+deleted. It defaults to `false` to protect media during routine work. Applying
+the reviewed saved plan removes the S3 bucket and its contents, Lambda, API
+Gateway, CloudWatch log group, IAM role and policy, and the remaining AWS
+resources tracked by this configuration. The operation is irreversible; do not
+apply the plan if it contains resources outside this project.
 
 ## Current limitations
 

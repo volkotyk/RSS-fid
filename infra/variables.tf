@@ -16,6 +16,12 @@ variable "environment" {
   default     = "prod"
 }
 
+variable "allow_destroy_media_deletion" {
+  description = "Allow Terraform to permanently delete every object in the podcast S3 bucket when destroying the deployment"
+  type        = bool
+  default     = false
+}
+
 variable "podcast_title" {
   description = "Human-readable title in the RSS <channel> element"
   type        = string

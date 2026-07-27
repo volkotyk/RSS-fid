@@ -33,8 +33,9 @@ locals {
 # ─────────────────────────────────────────────
 
 resource "aws_s3_bucket" "podcast_audio" {
-  bucket = local.bucket_name
-  tags   = local.common_tags
+  bucket        = local.bucket_name
+  force_destroy = var.allow_destroy_media_deletion
+  tags          = local.common_tags
 }
 
 resource "aws_s3_bucket_public_access_block" "podcast_audio" {
