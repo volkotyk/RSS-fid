@@ -15,3 +15,10 @@
 - Updated project security and release state for the public repository model.
 - Corrected stale agent guidance that claimed an unimplemented ACM/Route53
   custom-domain layer and documented the actual required Terraform inputs.
+
+## [2026-07-27] YouTube Music RSS listening guide
+
+- Added an end-to-end README walkthrough for obtaining and validating the
+  deployed feed URL, subscribing in the YouTube Music mobile app, listening,
+  downloading episodes, understanding RSS limitations, and troubleshooting
+  common feed, media, artwork, and redirect problems.

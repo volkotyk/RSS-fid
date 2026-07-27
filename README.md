@@ -197,6 +197,96 @@ that the source directory contains exactly the files intended for this bucket.
 The Lambda reads object size and modification time directly from S3, so a new
 feed request reflects uploads without a separate database or index.
 
+## Listen in YouTube Music with the RSS feed
+
+Google's current podcast player is YouTube Music. It can add a podcast directly
+from its RSS URL in the Android or iOS app. Google requires an adult (18+)
+account for RSS subscriptions. See the official
+[YouTube Music RSS instructions](https://support.google.com/youtubemusic/answer/13946190).
+
+### 1. Deploy the feed and upload media
+
+Complete the Terraform deployment and upload at least one supported audio file
+to the generated S3 bucket. Upload `images/cover.png` as well if the podcast
+should display cover artwork.
+
+### 2. Copy the public feed URL
+
+Read the URL from the Terraform state instead of copying an account-specific
+API Gateway hostname into documentation or source code:
+
+```powershell
+$feedUrl = terraform -chdir=infra output -raw rss_feed_url
+$feedUrl
+```
+
+The value should be an HTTPS URL ending in `/feed`, for example
+`https://<api-id>.execute-api.<region>.amazonaws.com/feed`.
+
+### 3. Verify the feed before adding it
+
+The feed must be reachable from the public internet because YouTube Music fetches
+it from Google's servers. Check the response from a machine with internet access:
+
+```powershell
+$response = Invoke-WebRequest -Uri $feedUrl -UseBasicParsing
+$response.StatusCode
+$response.Headers["Content-Type"]
+```
+
+Expect status `200` and a content type beginning with `application/rss+xml`.
+Opening `$feedUrl` in a browser should also display or download XML containing
+an `<rss>` element and at least one `<item>` after media has been uploaded.
+
+### 4. Add the RSS URL in the YouTube Music mobile app
+
+1. Open **YouTube Music** on Android or iOS and sign in with an adult Google
+   Account.
+2. Tap **Library**.
+3. Select **Podcasts** at the top of the screen.
+4. Tap **Add podcast** in the bottom-right corner.
+5. Select **Add a podcast by RSS feed**.
+6. Read and accept Google's RSS-feed disclaimer.
+7. Paste the `$feedUrl` value from step 2.
+8. Tap **Add**.
+9. Wait for the show to appear under **Library → Podcasts**. Google says most
+   feeds appear within minutes, although some take longer. RSS-based shows have
+   an RSS badge next to their title.
+
+### 5. Listen and optionally download episodes
+
+1. Open **Library → Podcasts** and select the newly added show.
+2. Select an episode and tap **Play**.
+3. To listen later without a connection, open the episode menu and select
+   **Download** when that option is available.
+
+Google documents that podcast downloads are generally available without a
+Premium membership, although some shows or episodes may not support an
+audio-only download. See the official
+[offline listening guide](https://support.google.com/youtubemusic/answer/6313535).
+Most podcasts can also continue playing in the background without Premium.
+
+You do not need to re-add the URL after uploading another episode. YouTube Music
+periodically refreshes the same feed. `rssfid` asks clients to cache the RSS XML
+for five minutes, and YouTube Music may take additional time to fetch an update.
+
+### Troubleshooting YouTube Music
+
+| Problem | What to check |
+| --- | --- |
+| **Add a podcast by RSS feed** is missing | Confirm that this is the YouTube Music mobile app and that the signed-in Google Account is an adult account. |
+| YouTube Music rejects the URL | Use the `rss_feed_url` Terraform output, including HTTPS and the final `/feed`; do not paste the `/cover` URL or an S3 URL. |
+| The feed returns an error | Run the verification command above, confirm the Lambda and S3 bucket still exist, then inspect the `cloudwatch_log_group` Terraform output. |
+| The show appears without episodes | Upload at least one file with a supported audio extension and request `/feed` again to confirm that the XML contains an `<item>`. |
+| Artwork is missing | Upload the cover as `images/cover.png`. For numbered episode files such as `1. Introduction.mp3`, upload episode artwork as `images/1.png`. |
+| An episode is listed but will not play | Confirm that its S3 object still exists and that its `/audio/...` enclosure URL returns a `307` redirect rather than `404` or `502`. |
+
+RSS-added shows do not support every native YouTube Music feature. Google lists
+audio/video switching, likes and dislikes, sharing, channel pages, reporting,
+and captions as unavailable. Google also warns that the RSS host can receive the
+listener's IP address. In this project, both the feed URL and its API routes are
+public, so do not treat possession of the URL as strong access control.
+
 ## GitHub Actions configuration
 
 The workflow runs tests and offline Terraform validation on every push and pull
