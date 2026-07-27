@@ -287,6 +287,118 @@ and captions as unavailable. Google also warns that the RSS host can receive the
 listener's IP address. In this project, both the feed URL and its API routes are
 public, so do not treat possession of the URL as strong access control.
 
+## Listen in Apple Podcasts
+
+Podcast RSS feeds are handled by the **Apple Podcasts** app, not Apple Music.
+Apple Podcasts can follow the `rssfid` URL directly for personal listening; the
+show does not need to be submitted to Apple's public catalog first. See Apple's
+official guide for
+[adding a show by URL on iPhone](https://support.apple.com/en-gb/guide/iphone/iph19bb8e705/ios).
+
+### iPhone or iPad
+
+1. Obtain and verify `$feedUrl` using steps 2 and 3 in the YouTube Music section
+   above.
+2. Open the **Podcasts** app.
+3. Tap **Library**.
+4. Tap the **More** button (`…`).
+5. Select **Follow a Show by URL**.
+6. Paste `$feedUrl`, including HTTPS and the final `/feed`.
+7. Tap **Follow**.
+8. Open the show from **Library**, select an episode, and tap **Play**.
+9. To listen offline, touch and hold an episode and select **Download**. Apple
+   documents the current download flow in its
+   [Apple Podcasts download guide](https://support.apple.com/en-us/102243).
+
+### Mac
+
+1. Open the **Podcasts** app.
+2. From the menu bar, choose **File → Follow a Show by URL**.
+3. Paste `$feedUrl` and click **Follow**.
+4. Open the show from the sidebar and play or download an episode.
+
+These steps follow the feed only in the listener's Apple Podcasts library. They
+do not make the show searchable in Apple's public catalog. If public discovery
+is desired, use [Apple Podcasts Connect](https://podcastsconnect.apple.com/):
+
+1. Click **Add (`+`) → New Show**.
+2. Choose **Add a show with an RSS feed** and enter `$feedUrl`.
+3. Review the imported show information and confirm the content rights.
+4. Add contact information, then configure countries or regions, distribution,
+   transcripts, and release timing under **Availability**.
+5. Save and publish the show. Apple validates the feed and reviews the show
+   before making it available in Apple Podcasts.
+
+The complete public-catalog workflow and its review requirements are documented
+in Apple's official
+[Submit a new show guide](https://podcasters.apple.com/support/897-submit-a-show).
+
+## Publish and listen on Spotify
+
+Spotify's normal listener app does not provide a general-purpose **Add podcast
+by RSS URL** flow like YouTube Music or Apple Podcasts. To listen to a
+self-hosted `rssfid` show in Spotify, add or claim the externally hosted show
+through Spotify for Creators. This creates a Spotify catalog listing; use Apple
+Podcasts or YouTube Music instead if the feed should remain only a personal
+library entry.
+
+### 1. Prepare the feed for Spotify verification
+
+1. Deploy the feed and upload at least one episode and the cover artwork.
+2. Verify that `$feedUrl` returns status `200` and valid RSS XML.
+3. Confirm that `TF_VAR_podcast_owner_email` is an address you can access.
+   `rssfid` publishes this value in `<itunes:email>`, and Spotify sends its
+   ownership code to the email address found in the RSS feed.
+4. Confirm that you own or have permission to distribute all included content.
+
+### 2. Add or claim the externally hosted show
+
+1. Go to [Spotify for Creators](https://creators.spotify.com/) and sign in with
+   a Spotify account.
+2. For a new creator account, select **Find an existing show**, then
+   **Somewhere else**. If the account already manages another show, open the
+   account menu, select **Add a new show**, then choose **Find an existing show
+   → Somewhere else**.
+3. Enter `$feedUrl` when prompted for the podcast RSS feed or Spotify show URL.
+4. Request the ownership verification email.
+5. Copy the eight-digit code sent to `PODCAST_OWNER_EMAIL` and paste it into the
+   Spotify for Creators form.
+6. Complete the remaining show details and submission prompts.
+
+Spotify documents these current steps in
+[Claiming your podcast on Spotify for Creators](https://support.spotify.com/us/creators/article/claiming-your-podcast-on-spotify-for-creators/).
+A show can be claimed only once; an existing administrator must grant access if
+Spotify reports that somebody has already claimed it.
+
+### 3. Find and listen to the show
+
+1. Wait for Spotify to finish processing the feed and make the show available.
+2. Open the Spotify app and search for the podcast title configured in
+   `TF_VAR_podcast_title`.
+3. Open the matching show and select **Follow**.
+4. Select an episode and tap **Play**. Use Spotify's episode download option if
+   it is available for the account and device.
+
+Spotify continues reading the registered RSS URL, so new S3 episodes should
+appear after Spotify refreshes the feed; the URL does not need to be submitted
+again. If the feed URL changes, update it in **Spotify for Creators → Settings**
+instead of creating a duplicate show.
+
+### Spotify troubleshooting and publication warnings
+
+| Problem | What to check |
+| --- | --- |
+| No verification email arrives | Fetch `$feedUrl`, confirm `<itunes:email>` contains the expected reachable address, and check its spam folder. |
+| Spotify rejects or cannot find the feed | Confirm the URL is public HTTPS, ends in `/feed`, returns `200`, contains valid RSS XML, and has at least one episode. |
+| The show is already claimed | Ask the current Spotify for Creators administrator to add the required account; a show can be claimed only once. |
+| New episodes do not appear | Confirm the new S3 object appears as an `<item>` in `/feed`, then allow time for Spotify to refresh its cached copy. |
+| Playback fails | Test the episode's `/audio/...` enclosure URL and confirm it returns a `307` redirect to an unexpired S3 pre-signed URL. |
+
+Submitting to Spotify makes the show discoverable to other Spotify users and
+shares the feed metadata with Spotify. It is not a private-subscription feature.
+Also, Spotify for Creators is intended for podcasts, not for distributing music
+tracks, DJ mixes, or similar music releases.
+
 ## GitHub Actions configuration
 
 The workflow runs tests and offline Terraform validation on every push and pull

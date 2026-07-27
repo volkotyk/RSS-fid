@@ -22,3 +22,12 @@
   deployed feed URL, subscribing in the YouTube Music mobile app, listening,
   downloading episodes, understanding RSS limitations, and troubleshooting
   common feed, media, artwork, and redirect problems.
+
+## [2026-07-27] Apple Podcasts and Spotify listening guides
+
+- Documented direct RSS following and optional public catalog submission for
+  Apple Podcasts on iPhone, iPad, and Mac, clarifying that Apple Music is not the
+  podcast RSS client.
+- Documented Spotify for Creators ownership verification, catalog listening,
+  feed updates, troubleshooting, and the public-distribution implications of
+  using Spotify instead of a personal RSS subscription.
