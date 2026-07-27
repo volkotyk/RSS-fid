@@ -1,0 +1,132 @@
+name: RSS Feed Generator CI/CD
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  PYTHON_VERSION: "3.12"
+  TF_VERSION: "1.8.5"
+
+jobs:
+  test:
+    name: Unit Tests and Coverage
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Cache pip
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('requirements-dev.txt') }}
+          restore-keys: ${{ runner.os }}-pip-
+
+      - name: Install development dependencies
+        run: python -m pip install -r requirements-dev.txt
+
+      - name: Run pytest with 100 percent coverage gate
+        run: >-
+          python -m pytest tests
+          --cov=src
+          --cov-branch
+          --cov-report=term-missing
+          --cov-report=xml:coverage.xml
+          --cov-fail-under=100
+          -v
+        env:
+          AWS_ACCESS_KEY_ID: testing
+          AWS_SECRET_ACCESS_KEY: testing
+          AWS_DEFAULT_REGION: us-east-1
+
+      - name: Upload coverage report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage.xml
+
+  terraform:
+    name: Terraform Format and Validate
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      - name: Terraform init without backend
+        working-directory: infra
+        run: terraform init -backend=false
+
+      - name: Terraform format check
+        working-directory: infra
+        run: terraform fmt -check -recursive
+
+      - name: Terraform validate
+        working-directory: infra
+        run: terraform validate
+
+  deploy:
+    name: Manual AWS Deployment
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    needs: [test, terraform]
+    environment: production
+
+    env:
+      AWS_REGION: ${{ vars.AWS_REGION || 'us-east-1' }}
+      TF_VAR_aws_region: ${{ vars.AWS_REGION || 'us-east-1' }}
+      TF_VAR_project_name: ${{ vars.PROJECT_NAME || 'rssfid' }}
+      TF_VAR_environment: ${{ vars.DEPLOYMENT_ENVIRONMENT || 'prod' }}
+      TF_VAR_podcast_title: ${{ vars.PODCAST_TITLE }}
+      TF_VAR_podcast_description: ${{ vars.PODCAST_DESCRIPTION }}
+      TF_VAR_podcast_author: ${{ vars.PODCAST_AUTHOR }}
+      TF_VAR_podcast_language: ${{ vars.PODCAST_LANGUAGE || 'en' }}
+      TF_VAR_podcast_category: ${{ vars.PODCAST_CATEGORY || 'Education' }}
+      TF_VAR_podcast_owner_name: ${{ vars.PODCAST_OWNER_NAME }}
+      TF_VAR_podcast_owner_email: ${{ vars.PODCAST_OWNER_EMAIL }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Terraform init
+        working-directory: infra
+        run: terraform init
+
+      - name: Terraform plan
+        working-directory: infra
+        run: terraform plan -out=tfplan
+
+      - name: Terraform apply
+        working-directory: infra
+        run: terraform apply -auto-approve tfplan
+
+      - name: Print deployment outputs
+        working-directory: infra
+        run: terraform output

@@ -1,0 +1,12 @@
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths  = ["tests"]
+addopts    = "--tb=short"
+
+[tool.coverage.run]
+source   = ["handler"]
+branch   = true
+
+[tool.coverage.report]
+show_missing = true
+fail_under   = 100

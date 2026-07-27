@@ -1,0 +1,40 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+.venv/
+venv/
+
+# Terraform local state, plans, and generated packages
+**/.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan
+tfplan
+crash.log
+crash.*.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+.terraformrc
+terraform.rc
+*.tfvars
+!*.tfvars.example
+infra/lambda.zip
+dist/
+
+# Local podcast media is uploaded to S3, not stored in Git
+audio/
+images/
+
+# IDE, agent, and operating-system state
+.idea/
+.vscode/
+.claude/settings.local.json
+.DS_Store
+Thumbs.db

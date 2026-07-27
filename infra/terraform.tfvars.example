@@ -1,0 +1,15 @@
+# Optional local alternative to TF_VAR_* environment variables.
+# Copy to terraform.tfvars and replace these non-personal examples.
+# terraform.tfvars is ignored by Git; never commit real deployment values.
+
+aws_region   = "us-east-1"
+project_name = "rssfid"
+environment  = "prod"
+
+podcast_title       = "Example Podcast"
+podcast_description = "A short description of the podcast."
+podcast_author      = "Publisher Name"
+podcast_language    = "en"
+podcast_category    = "Education"
+podcast_owner_name  = "Podcast Owner"
+podcast_owner_email = "podcast@example.com"
